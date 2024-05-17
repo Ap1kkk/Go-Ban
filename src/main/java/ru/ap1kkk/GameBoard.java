@@ -76,11 +76,6 @@ public class GameBoard {
             return false;
         }
 
-        //TEMP
-        if(x == 1 && y == 3 && playerColor == Color.WHITE) {
-            System.out.print("");
-        }
-
         // Если клетка окружена противником
         if(!cellStates[x][y].equals(CellState.EMPTY)
                 && !cellStates[x][y].equals(CellState.fromColor(playerColor))) {
@@ -118,7 +113,7 @@ public class GameBoard {
         return board[x][y];
     }
 
-    private void updateSurroundedCells(GameBoard board, Color color) {
+    public void updateSurroundedCells(GameBoard board, Color color) {
         boolean[][] visited = new boolean[board.getSize()][board.getSize()];
         boolean[][] surrounded = new boolean[board.getSize()][board.getSize()];
         Integer count = 0;
@@ -198,18 +193,18 @@ public class GameBoard {
         System.out.println("Game board (positions|states):");
         System.out.print(" ");
         for (int i = 0; i < size; i++) {
-            System.out.print(i);
+            System.out.print(i+ " ");
         }
         System.out.printf("%n");
         for (int i = 0; i < size; i++) {
             System.out.print(i);
             for (int j = 0; j < size; j++) {
                 Stone stone = board[i][j];
-                System.out.printf("%s", Stone.getView(stone));
+                System.out.printf("%s ", Stone.getView(stone));
             }
             System.out.print("\t\t");
             for (int j = 0; j < size; j++) {
-                System.out.printf("%s", cellStates[i][j].getView());
+                System.out.printf("%s ", cellStates[i][j].getView());
             }
             System.out.printf("%n");
         }

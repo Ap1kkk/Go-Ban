@@ -10,13 +10,15 @@ public class Minimax {
     public static Move findBestMove(GameBoard board, Color playerColor) {
         int bestScore = Integer.MIN_VALUE;
         Move bestMove = null;
+        int alpha = Integer.MIN_VALUE;
+        int beta = Integer.MAX_VALUE;
 
         List<Move> possibleMoves = generateMoves(board, playerColor);
 
         for (Move move : possibleMoves) {
             GameBoard newBoard = board.copyBoard();
             newBoard.makeMove(move, new Stone(playerColor));
-            int score = minimax(newBoard, 0, true, playerColor);
+            int score = minimax(newBoard, 0, true, playerColor, alpha, beta);
             if (score > bestScore) {
                 bestScore = score;
                 bestMove = move;
@@ -26,8 +28,8 @@ public class Minimax {
         return bestMove;
     }
 
-    private static int minimax(GameBoard board, int depth, boolean maximizingPlayer, Color playerColor) {
-        System.out.printf("Minimax for: %s%n", playerColor);
+    private static int minimax(GameBoard board, int depth, boolean maximizingPlayer, Color playerColor, int alpha, int beta) {
+//        System.out.printf("Minimax for: %s%n", playerColor);
 
         if (depth == MAX_DEPTH || board.isGameOver(playerColor, playerColor.getOpponent())) {
             return EvaluationFunction.evaluatePosition(board, playerColor);
@@ -39,8 +41,12 @@ public class Minimax {
             for (Move move : possibleMoves) {
                 GameBoard newBoard = board.copyBoard();
                 newBoard.makeMove(move, new Stone(playerColor));
-                int eval = minimax(newBoard, depth + 1, false, playerColor);
+                int eval = minimax(newBoard, depth + 1, false, playerColor,  alpha, beta);
                 maxEval = Math.max(maxEval, eval);
+                beta = Math.min(beta, maxEval);
+                if (beta <= alpha) {
+                    break; // Beta cut-off
+                }
             }
 
             return maxEval;
@@ -51,8 +57,12 @@ public class Minimax {
             for (Move move : possibleMoves) {
                 GameBoard newBoard = board.copyBoard();
                 newBoard.makeMove(move, new Stone(opponentColor));
-                int eval = minimax(newBoard, depth + 1, true, playerColor);
+                int eval = minimax(newBoard, depth + 1, true, playerColor,  alpha, beta);
                 minEval = Math.min(minEval, eval);
+                alpha = Math.max(alpha, minEval);
+                if (beta <= alpha) {
+                    break; // Alpha cut-off
+                }
             }
             return minEval;
         }

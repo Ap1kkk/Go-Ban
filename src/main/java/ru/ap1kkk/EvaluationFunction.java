@@ -31,7 +31,7 @@ public class EvaluationFunction {
                 + opponentLiberties * LIBERTY_COUNT_WEIGHT;
 
         // Возвращаем разницу между оценками игрока и противника
-        System.out.printf("Evaluated for player %s : %s%n", playerColor, playerScore - opponentScore);
+//        System.out.printf("Evaluated for player %s : %s%n", playerColor, playerScore - opponentScore);
         return playerScore - opponentScore;
     }
 
