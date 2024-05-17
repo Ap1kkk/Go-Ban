@@ -12,6 +12,12 @@ public class Stone {
         this.color = color;
     }
 
+    public Stone(Color color, int x, int y) {
+        this.color = color;
+        this.x = x;
+        this.y = y;
+    }
+
     public static String getView(Stone stone) {
         if(stone == null)
             return "-";

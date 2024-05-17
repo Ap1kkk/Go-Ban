@@ -1,7 +1,17 @@
 package ru.ap1kkk;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum CellState {
-    EMPTY, WHITE_SURROUNDED, BLACK_SURROUNDED;
+    EMPTY("-"),
+    WHITE_SURROUNDED("W"),
+    BLACK_SURROUNDED("B"),
+    TO_BE_EATEN("E");
+
+    private final String view;
 
     public static CellState fromColor(Color color) {
         if(color.equals(Color.BLACK))
@@ -9,13 +19,5 @@ public enum CellState {
         else if(color.equals(Color.WHITE))
             return WHITE_SURROUNDED;
         return EMPTY;
-    }
-
-    public String getView() {
-        if(this.equals(EMPTY))
-            return "-";
-        if(this.equals(WHITE_SURROUNDED))
-            return "W";
-        return "B";
     }
 }

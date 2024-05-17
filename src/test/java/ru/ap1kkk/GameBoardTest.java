@@ -3,8 +3,6 @@ package ru.ap1kkk;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class GameBoardTest {
     private final int BOARD_SIZE = 5;
 
@@ -16,9 +14,8 @@ class GameBoardTest {
     }
 
     @Test
-    void updateSurroundedCells() {
-        gameBoard.readBoardFromFile("test_surrounded.txt");
-        gameBoard.updateSurroundedCells(gameBoard, Color.BLACK);
-        gameBoard.print();
+    void paintSurroundColors() {
+        gameBoard.readBoardFromFile("test_surrounded_1.txt");
+        gameBoard.paintSurroundColors(Color.WHITE.getOpponent());
     }
 }

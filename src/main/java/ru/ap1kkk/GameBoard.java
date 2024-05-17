@@ -4,8 +4,9 @@ import lombok.Getter;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Logger;
+import java.util.List;
 
 public class GameBoard {
     @Getter
@@ -14,11 +15,16 @@ public class GameBoard {
     @Getter
     private final CellState[][] cellStates;
 
+    private final List<Stone> whiteStones;
+    private final List<Stone> blackStones;
+
     // Конструктор
     public GameBoard(int size) {
         this.size = size;
         board = new Stone[size][size];
         cellStates = new CellState[size][size];
+        whiteStones = new ArrayList<>();
+        blackStones = new ArrayList<>();
         clearStates();
     }
 
@@ -28,8 +34,23 @@ public class GameBoard {
 
     private void updateStates() {
         clearStates();
-        updateSurroundedCells(this, Color.BLACK);
-        updateSurroundedCells(this, Color.WHITE);
+        updateStonesAmount();
+    }
+
+    private void updateStonesAmount() {
+        whiteStones.clear();
+        blackStones.clear();
+        for (int x = 0; x < getSize(); x++) {
+            for (int y = 0; y < getSize(); y++) {
+                Stone stone = board[x][y];
+                if(stone != null) {
+                    if(stone.getColor().equals(Color.WHITE))
+                        whiteStones.add(stone);
+                    else
+                        blackStones.add(stone);
+                }
+            }
+        }
     }
 
     public GameBoard copyBoard() {
@@ -113,59 +134,117 @@ public class GameBoard {
         return board[x][y];
     }
 
-    public void updateSurroundedCells(GameBoard board, Color color) {
-        boolean[][] visited = new boolean[board.getSize()][board.getSize()];
-        boolean[][] surrounded = new boolean[board.getSize()][board.getSize()];
-        Integer count = 0;
+    public PaintedData paintSurroundColors(Color opponentColor) {
+        boolean[][] visited = new boolean[getSize()][getSize()];
+        SurroundColor[][] colors = new SurroundColor[getSize()][getSize()];
 
-        // Обходим каждую клетку доски
-        for (int x = 1; x < board.getSize() - 1; x++) {
-            for (int y = 1; y < board.getSize() - 1; y++) {
-                isSurrounded(board, color, x, y, visited, surrounded, count);
+        List<Stone> playerBoundStones = new ArrayList<>();
+        List<Stone> stones;
+
+        if(opponentColor.equals(Color.WHITE))
+            stones = whiteStones;
+        else
+            stones = blackStones;
+
+        for (Stone stone: stones)
+            paintSurroundColors(stone.getX(), stone.getY(), opponentColor, visited, colors, playerBoundStones);
+
+        printSurroundColors(colors);
+
+        return new PaintedData(colors, playerBoundStones);
+    }
+
+    private void paintSurroundColors(int x, int y, Color opponentColor, boolean[][] visited, SurroundColor[][] colors, List<Stone> playerBoundStones) {
+        if (x < 0 || x >= getSize() || y < 0 || y >= getSize())
+            return;
+
+        if(visited[x][y])
+            return;
+        visited[x][y] = true;
+
+        Stone stone = getStone(x, y);
+        if(stone != null) {
+            if(!stone.getColor().equals(opponentColor)) {
+                colors[x][y] = SurroundColor.PLAYER;
+                playerBoundStones.add(stone);
+                return;
             }
+            colors[x][y] = SurroundColor.ENEMY;
+        } else {
+            colors[x][y] = SurroundColor.IMPOSSIBLE_TO_SURROUND;
         }
 
-        for (int x = 0; x < board.getSize(); x++) {
-            for (int y = 0; y < board.getSize(); y++) {
-                if(surrounded[x][y])
-                    cellStates[x][y] = CellState.fromColor(color);
+        paintSurroundColors(x - 1, y, opponentColor, visited, colors, playerBoundStones);
+        paintSurroundColors(x + 1, y, opponentColor, visited, colors, playerBoundStones);
+        paintSurroundColors( x, y - 1, opponentColor, visited, colors, playerBoundStones);
+        paintSurroundColors( x, y + 1, opponentColor, visited, colors, playerBoundStones);
+    }
+
+    public void paintStonesToBeEaten(Color playerColor, List<Stone> boundStones) {
+        boolean[][] visited = new boolean[getSize()][getSize()];
+        boolean[][] canBeEaten = new boolean[getSize()][getSize()];
+
+
+    }
+
+    private boolean paintStonesToBeEaten(int x, int y, Color playerColor, boolean[][] visited) {
+        if (x < 0 || x >= getSize() || y < 0 || y >= getSize())
+            return true;
+
+        if(visited[x][y])
+            return true;
+
+        visited[x][y] = true;
+        Stone stone = getStone(x, y);
+
+        if(stone == null)
+            return false;
+
+        if(!stone.getColor().equals(playerColor))
+            return true;
+
+        boolean canBeEaten = true;
+        canBeEaten &= paintStonesToBeEaten(x - 1, y, playerColor, visited);
+        canBeEaten &= paintStonesToBeEaten(x + 1, y, playerColor, visited);
+        canBeEaten &= paintStonesToBeEaten(x, y - 1, playerColor, visited);
+        canBeEaten &= paintStonesToBeEaten(x, y + 1, playerColor, visited);
+
+        return canBeEaten;
+    }
+
+
+
+    private boolean checkVisited(boolean[][] visited, int x, int y) {
+        if (x < 0 || x >= getSize() || y < 0 || y >= getSize()) {
+            return false;
+        }
+        return visited[x][y];
+    }
+
+    private void printVisitedAndSurrounded(boolean[][] visited, SurroundColor[][] surrounded) {
+        System.out.println("Game board (visited|surrounded):");
+        System.out.print(" ");
+        for (int i = 0; i < size; i++) {
+            System.out.print(i+ " ");
+        }
+        System.out.printf("%n");
+        for (int i = 0; i < size; i++) {
+            System.out.print(i);
+            for (int j = 0; j < size; j++) {
+                System.out.printf("%s ",  fromBoolean(visited[i][j]));
             }
+            System.out.print("\t\t");
+            for (int j = 0; j < size; j++) {
+//                System.out.printf("%s ", fromBoolean(surrounded[i][j]));
+            }
+            System.out.printf("%n");
         }
     }
 
-    private static boolean isSurrounded(GameBoard board, Color color, int x, int y, boolean[][] visited, boolean[][] surrounded, Integer count) {
-        if (x < 0 || x >= board.getSize() || y < 0 || y >= board.getSize()) {
-            return false;
-        }
-
-        if(x == 0 || x == board.getSize() || y == 0 || y == board.getSize()) {
-            if(board.getStone(x, y) != null && board.getStone(x, y).getColor() == color) {
-                return true;
-            }
-            return false;
-        }
-
-        if(board.getStone(x, y) != null) {
-            if(board.getStone(x, y).getColor() == color)
-                return true;
-            return false;
-        }
-
-        // Если клетка уже была посещена или принадлежит противоположному цвету, возвращаем 0
-        if (visited[x][y])
-            return true;
-
-        // Отмечаем клетку как посещенную
-        visited[x][y] = true;
-
-        boolean isSurrounded = true;
-        isSurrounded &= isSurrounded(board, color, x - 1, y, visited, surrounded, count);
-        isSurrounded &= isSurrounded(board, color, x + 1, y, visited, surrounded, count);
-        isSurrounded &= isSurrounded(board, color, x, y - 1, visited, surrounded, count);
-        isSurrounded &= isSurrounded(board, color, x, y + 1, visited, surrounded, count);
-        surrounded[x][y] = isSurrounded;
-
-        return isSurrounded;
+    private String fromBoolean(boolean bool) {
+        if(bool)
+            return "T";
+        return "-";
     }
 
     public void printStones() {
@@ -184,6 +263,16 @@ public class GameBoard {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 System.out.printf("%s", cellStates[i][j].getView());
+            }
+            System.out.printf("%n");
+        }
+    }
+
+    private void printSurroundColors(SurroundColor[][] colors) {
+        System.out.println("Surround colors:");
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                System.out.printf("%s", SurroundColor.getView(colors[i][j]));
             }
             System.out.printf("%n");
         }
@@ -221,9 +310,13 @@ public class GameBoard {
                     for (int col = 0; col < Math.min(line.length(), size); col++) {
                         char cell = line.charAt(col);
                         if (cell == 'B') {
-                            board[row][col] = new Stone(Color.BLACK);
+                            Stone stone = new Stone(Color.BLACK, row, col);
+                            board[row][col] = stone;
+                            blackStones.add(stone);
                         } else if (cell == 'W') {
-                            board[row][col] = new Stone(Color.WHITE);
+                            Stone stone = new Stone(Color.WHITE, row, col);
+                            board[row][col] = stone;
+                            whiteStones.add(stone);
                         }
                         // Для других символов можно добавить дополнительные условия
                     }
