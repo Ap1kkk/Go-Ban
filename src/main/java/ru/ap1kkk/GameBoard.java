@@ -14,8 +14,9 @@ public class GameBoard {
     private final Stone[][] board;
     @Getter
     private final CellState[][] cellStates;
-
+    @Getter
     private final List<Stone> whiteStones;
+    @Getter
     private final List<Stone> blackStones;
 
     // Конструктор
@@ -35,6 +36,30 @@ public class GameBoard {
     private void updateStates() {
         clearStates();
         updateStonesAmount();
+        paint(Color.WHITE);
+        paint(Color.BLACK);
+    }
+
+    private void paint(Color playerColor) {
+        if(playerColor.equals(Color.WHITE)) {
+            if (whiteStones.size() < 2)
+                return;
+        }
+        else {
+            if (blackStones.size() < 2)
+                return;
+        }
+
+        PaintedData whitePaintedData = paintSurroundColors(playerColor.getOpponent());
+        boolean[][] toBeEaten = paintStonesToBeEaten(playerColor, whitePaintedData.playerBoundStones());
+        for (int x = 0; x < getSize(); x++) {
+            for (int y = 0; y < getSize(); y++) {
+                if(whitePaintedData.painted()[x][y] == null)
+                    cellStates[x][y] = CellState.fromColor(playerColor);
+                if(toBeEaten[x][y])
+                    cellStates[x][y] = CellState.eatenFromColor(playerColor);
+            }
+        }
     }
 
     private void updateStonesAmount() {
@@ -180,71 +205,57 @@ public class GameBoard {
         paintSurroundColors( x, y + 1, opponentColor, visited, colors, playerBoundStones);
     }
 
-    public void paintStonesToBeEaten(Color playerColor, List<Stone> boundStones) {
+    public boolean[][] paintStonesToBeEaten(Color playerColor, List<Stone> boundStones) {
         boolean[][] visited = new boolean[getSize()][getSize()];
         boolean[][] canBeEaten = new boolean[getSize()][getSize()];
 
+        for (Stone stone: boundStones)
+            paintStonesToBeEaten(stone.getX(), stone.getY(), playerColor, visited, canBeEaten);
 
+        print(canBeEaten);
+        return canBeEaten;
     }
 
-    private boolean paintStonesToBeEaten(int x, int y, Color playerColor, boolean[][] visited) {
+    private boolean paintStonesToBeEaten(int x, int y, Color playerColor, boolean[][] visited, boolean[][] toBeEaten) {
         if (x < 0 || x >= getSize() || y < 0 || y >= getSize())
             return true;
+
+        Stone stone = getStone(x, y);
+        if(stone == null)
+            return false;
 
         if(visited[x][y])
             return true;
 
         visited[x][y] = true;
-        Stone stone = getStone(x, y);
-
-        if(stone == null)
-            return false;
 
         if(!stone.getColor().equals(playerColor))
             return true;
 
         boolean canBeEaten = true;
-        canBeEaten &= paintStonesToBeEaten(x - 1, y, playerColor, visited);
-        canBeEaten &= paintStonesToBeEaten(x + 1, y, playerColor, visited);
-        canBeEaten &= paintStonesToBeEaten(x, y - 1, playerColor, visited);
-        canBeEaten &= paintStonesToBeEaten(x, y + 1, playerColor, visited);
+        canBeEaten &= paintStonesToBeEaten(x - 1, y, playerColor, visited, toBeEaten);
+        canBeEaten &= paintStonesToBeEaten(x, y - 1, playerColor, visited, toBeEaten);
+        canBeEaten &= paintStonesToBeEaten(x + 1, y, playerColor, visited, toBeEaten);
+        canBeEaten &= paintStonesToBeEaten(x, y + 1, playerColor, visited, toBeEaten);
+
+        toBeEaten[x][y] = canBeEaten;
 
         return canBeEaten;
-    }
-
-
-
-    private boolean checkVisited(boolean[][] visited, int x, int y) {
-        if (x < 0 || x >= getSize() || y < 0 || y >= getSize()) {
-            return false;
-        }
-        return visited[x][y];
-    }
-
-    private void printVisitedAndSurrounded(boolean[][] visited, SurroundColor[][] surrounded) {
-        System.out.println("Game board (visited|surrounded):");
-        System.out.print(" ");
-        for (int i = 0; i < size; i++) {
-            System.out.print(i+ " ");
-        }
-        System.out.printf("%n");
-        for (int i = 0; i < size; i++) {
-            System.out.print(i);
-            for (int j = 0; j < size; j++) {
-                System.out.printf("%s ",  fromBoolean(visited[i][j]));
-            }
-            System.out.print("\t\t");
-            for (int j = 0; j < size; j++) {
-//                System.out.printf("%s ", fromBoolean(surrounded[i][j]));
-            }
-            System.out.printf("%n");
-        }
     }
 
     private String fromBoolean(boolean bool) {
         if(bool)
             return "T";
         return "-";
+    }
+
+    public void print(boolean[][] booleans) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                System.out.printf("%s", fromBoolean(booleans[i][j]));
+            }
+            System.out.printf("%n");
+        }
     }
 
     public void printStones() {
