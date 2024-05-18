@@ -1,6 +1,7 @@
-package ru.ap1kkk;
+package ru.ap1kkk.models;
 
 import lombok.Data;
+import ru.ap1kkk.models.enums.Color;
 
 @Data
 public class Stone {

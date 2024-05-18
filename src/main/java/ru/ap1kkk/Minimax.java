@@ -1,11 +1,15 @@
 package ru.ap1kkk;
 
+import ru.ap1kkk.models.enums.Color;
+import ru.ap1kkk.models.Stone;
+import ru.ap1kkk.records.Move;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Minimax {
 
-    private static final int MAX_DEPTH = 3; // Максимальная глубина просмотра
+    private static final int MAX_DEPTH = 3;
 
     public static Move findBestMove(GameBoard board, Color playerColor) {
         int bestScore = Integer.MIN_VALUE;
@@ -29,8 +33,6 @@ public class Minimax {
     }
 
     private static int minimax(GameBoard board, int depth, boolean maximizingPlayer, Color playerColor, int alpha, int beta) {
-//        System.out.printf("Minimax for: %s%n", playerColor);
-
         if (depth == MAX_DEPTH || board.isGameOver(playerColor, playerColor.getOpponent())) {
             return EvaluationFunction.evaluatePosition(board, playerColor);
         }

@@ -1,4 +1,4 @@
-package ru.ap1kkk;
+package ru.ap1kkk.records;
 
 public record Move(
         int x,

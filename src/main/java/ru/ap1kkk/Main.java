@@ -1,17 +1,23 @@
 package ru.ap1kkk;
 
-import org.fusesource.jansi.AnsiConsole;
+import ru.ap1kkk.models.enums.Color;
+import ru.ap1kkk.models.enums.PlayerType;
+import ru.ap1kkk.models.Stone;
+import ru.ap1kkk.records.Move;
 
 import java.util.Scanner;
 
 public class Main {
     private static final int BOARD_SIZE = 5;
     private static final Scanner scanner = new Scanner(System.in);
+    private static final boolean READ_FROM_FILE = false;
 
     public static void main(String[] args) {
         GameBoard gameBoard = new GameBoard(BOARD_SIZE);
 
-//        gameBoard.readBoardFromFile("input.txt");
+        if(READ_FROM_FILE)
+            gameBoard.readBoardFromFile("input.txt");
+
         PlayerType playerType = null;
         PlayerType opponentType = null;
 
@@ -79,7 +85,7 @@ public class Main {
     private static void moveAI(GameBoard gameBoard, Color playerColor) {
         Move bestMove = Minimax.findBestMove(gameBoard, playerColor);
         gameBoard.makeMove(bestMove, new Stone(playerColor));
-        System.out.printf("AI %s moved -> (%s,%s)", playerColor, bestMove.x(), bestMove.y());
+        System.out.printf("AI %s moved -> (%s,%s)%n", playerColor, bestMove.x(), bestMove.y());
     }
 
     private static Move validateInput(GameBoard gameBoard, Color playerColor, String input) {

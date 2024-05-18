@@ -1,4 +1,4 @@
-package ru.ap1kkk;
+package ru.ap1kkk.models.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +27,20 @@ public enum CellState {
         else if(color.equals(Color.WHITE))
             return WHITE_TO_BE_EATEN;
         return EMPTY;
+    }
+
+    public static boolean isLockedByOpponent(Color color, CellState cellState) {
+        if(cellState.equals(EMPTY))
+            return false;
+
+        if(color.equals(Color.WHITE)) {
+            if(cellState.equals(WHITE_SURROUNDED) || cellState.equals(BLACK_TO_BE_EATEN))
+                return false;
+            return true;
+        } else {
+            if(cellState.equals(BLACK_SURROUNDED) || cellState.equals(WHITE_TO_BE_EATEN))
+                return false;
+            return true;
+        }
     }
 }

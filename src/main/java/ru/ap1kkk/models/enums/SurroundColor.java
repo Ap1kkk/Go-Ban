@@ -1,4 +1,4 @@
-package ru.ap1kkk;
+package ru.ap1kkk.models.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,7 @@
-package ru.ap1kkk;
+package ru.ap1kkk.records;
+
+import ru.ap1kkk.models.Stone;
+import ru.ap1kkk.models.enums.SurroundColor;
 
 import java.util.List;
 
