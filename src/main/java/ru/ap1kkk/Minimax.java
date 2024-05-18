@@ -1,5 +1,6 @@
 package ru.ap1kkk;
 
+import lombok.Getter;
 import ru.ap1kkk.models.enums.Color;
 import ru.ap1kkk.models.Stone;
 import ru.ap1kkk.records.Move;
@@ -10,6 +11,9 @@ import java.util.List;
 public class Minimax {
 
     private static final int MAX_DEPTH = 3;
+
+    @Getter
+    private static int bestScore;
 
     public static Move findBestMove(GameBoard board, Color playerColor) {
         int bestScore = Integer.MIN_VALUE;
@@ -29,6 +33,7 @@ public class Minimax {
             }
         }
 
+        Minimax.bestScore = bestScore;
         return bestMove;
     }
 

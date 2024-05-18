@@ -5,7 +5,7 @@ import ru.ap1kkk.models.enums.Color;
 import ru.ap1kkk.records.EvaluationData;
 
 public class EvaluationFunction {
-    private static final int EAT_OPPONENT_WEIGHT = 40;
+    private static final int EAT_OPPONENT_WEIGHT = 60;
     private static final int TERRITORY_WEIGHT = 20;
     private static final int STONE_COUNT_WEIGHT = 10;
     private static final int LIBERTY_COUNT_WEIGHT = 5;
